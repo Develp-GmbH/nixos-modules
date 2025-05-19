@@ -27,7 +27,7 @@
           packages =
             with pkgs;
             [
-              inputs'.agenix.packages.agenix
+              inputs'.ragenix.packages.ragenix
               inputs'.nixos-anywhere.packages.nixos-anywhere
               figlet
               just

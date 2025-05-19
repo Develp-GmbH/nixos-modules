@@ -88,13 +88,11 @@
       };
     };
 
-    agenix = {
-      url = "github:ryantm/agenix";
+    ragenix = {
+      url = "github:yaxitech/ragenix";
       inputs = {
         nixpkgs.follows = "nixpkgs";
-        systems.follows = "systems";
-        darwin.follows = "nix-darwin";
-        home-manager.follows = "home-manager";
+        flake-utils.follows = "flake-utils";
       };
     };
 

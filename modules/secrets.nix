@@ -34,7 +34,7 @@
     in
     {
       imports = [
-        inputs.agenix.nixosModules.default
+        inputs.ragenix.nixosModules.default
       ];
 
       options.mcl.secrets = with lib; {
