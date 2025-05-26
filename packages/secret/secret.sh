@@ -44,7 +44,7 @@ function nix_eval_machine() {
   else
     subPath='config'
   fi
-  nix eval ${@} ".#nixosConfigurations.${machine}.${subPath}.${target}"
+  nix eval ${@} ".#nixosConfigurations.\"${machine}\".${subPath}.${target}"
 }
 
 function agenix_wrapper() {
