@@ -67,6 +67,7 @@ function agenix_wrapper() {
   fi
   # Show what is being executed to the user.
   if [[ "${verbose}" == 'true' ]]; then
+    agenixArgs="-v ${agenixArgs}"
     echo -e "{\n  cd ${secretsFolder}/${service};\n  export RULES=${RULES};\n  agenix ${agenixArgs} ${@};\n}" >&2
   fi
   ( # Script block necessary to limit scope of directory change.
