@@ -70,13 +70,14 @@ function agenix_wrapper() {
     agenixArgs="-v ${agenixArgs}"
     echo -e "{\n  cd ${secretsFolder}/${service};\n  ln -s ${rulesFile} secrets.nix;\n  agenix ${agenixArgs} ${@};\n  unlink secrets.nix;\n}" >&2
   fi
-  ( # Script block necessary to limit scope of directory change.
-    cd "${secretsFolder}/${service}";
-    # Required due to: https://github.com/yaxitech/ragenix/issues/160
-    ln -fs "${rulesFile}" secrets.nix;
-    trap 'unlink secrets.nix' RETURN
-    exec agenix ${agenixArgs} ${@};
-  )
+  # Script block necessary to limit scope of directory change.
+  pushd "${secretsFolder}/${service}" 2>/dev/null
+  # Required due to: https://github.com/yaxitech/ragenix/issues/160
+  ln -fs "${rulesFile}" secrets.nix
+  trap "unlink ${PWD}/secrets.nix" RETURN
+
+  agenix ${agenixArgs} ${@};
+  popd 2>/dev/null
 }
 
 machine=""
