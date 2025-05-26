@@ -39,12 +39,13 @@ set -euo pipefail
 function nix_eval_machine() {
   target="${1}"
   shift
+  subPath='config'
+  machineName="${machine}"
   if [[ "${machineType}" == 'vm' ]]; then
-    subPath='virtualisation.vmVariant'
-  else
-    subPath='config'
+    subPath="${subPath}.virtualisation.vmVariant"
+    machineName="vm-${machineName}"
   fi
-  nix eval ${@} ".#nixosConfigurations.\"${machine}\".${subPath}.${target}"
+  nix eval ${@} ".#nixosConfigurations.\"${machineName}\".${subPath}.${target}"
 }
 
 function agenix_wrapper() {
@@ -70,14 +71,15 @@ function agenix_wrapper() {
     agenixArgs="-v ${agenixArgs}"
     echo -e "{\n  cd ${secretsFolder}/${service};\n  ln -s ${rulesFile} secrets.nix;\n  agenix ${agenixArgs} ${@};\n  unlink secrets.nix;\n}" >&2
   fi
-  # Script block necessary to limit scope of directory change.
-  pushd "${secretsFolder}/${service}" 2>/dev/null
+
+  pushd "${secretsFolder}/${service}" >/dev/null
+
   # Required due to: https://github.com/yaxitech/ragenix/issues/160
   ln -fs "${rulesFile}" secrets.nix
   trap "unlink ${PWD}/secrets.nix" RETURN
 
   agenix ${agenixArgs} ${@};
-  popd 2>/dev/null
+  popd >/dev/null
 }
 
 machine=""
