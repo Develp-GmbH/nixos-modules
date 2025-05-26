@@ -95,9 +95,19 @@
                   nix-file = mkOption {
                     default = builtins.toFile "${serviceName}-secrets.nix" ''
                       let
-                        hostKey = ["${sshKey}"];
-                        extraKeysPerService = ["${concatStringsSep "\"\"" (lib.unique (lib.remove sshKey config.extraKeys))}"];
-                        extraKeysPerHost = ["${concatStringsSep "\"\"" mcl-secrets.extraKeys}"];
+                        hostKey = [
+                          "${sshKey}"
+                        ];
+                        extraKeysPerService = [
+                          ${lib.concatMapStringsSep "\n    " (key:
+                            "\"${key}\""
+                          ) (lib.unique (lib.remove sshKey config.extraKeys))}
+                        ];
+                        extraKeysPerHost = [
+                          ${lib.concatMapStringsSep "\n    " (key:
+                            "\"${key}\""
+                          ) mcl-secrets.extraKeys}
+                        ];
                       in {
                         ${concatMapStringsSep "\n" (
                           n: "\"${n}.age\".publicKeys = hostKey ++ extraKeysPerService ++ extraKeysPerHost;"
