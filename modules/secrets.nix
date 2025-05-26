@@ -96,7 +96,7 @@
                     default = builtins.toFile "${serviceName}-secrets.nix" ''
                       let
                         hostKey = ["${sshKey}"];
-                        extraKeysPerService = ["${concatStringsSep "\"\"" config.extraKeys}"];
+                        extraKeysPerService = ["${concatStringsSep "\"\"" (lib.unique (lib.remove sshKey config.extraKeys))}"];
                         extraKeysPerHost = ["${concatStringsSep "\"\"" mcl-secrets.extraKeys}"];
                       in {
                         ${concatMapStringsSep "\n" (
