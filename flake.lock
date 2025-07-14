@@ -238,7 +238,7 @@
         "lib-extras": "lib-extras",
         "nimbus-eth2": "nimbus-eth2",
         "nixpkgs": [
-          "nixos-2405"
+          "nixos-2505"
         ],
         "nixpkgs-2311": [
           "nixos-2311"
