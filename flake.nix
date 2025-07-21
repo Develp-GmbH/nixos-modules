@@ -92,7 +92,8 @@
     ragenix = {
       url = "github:yaxitech/ragenix";
       inputs = {
-        nixpkgs.follows = "nixpkgs";
+        # https://github.com/yaxitech/ragenix/issues/159
+        nixpkgs.follows = "nixos-2411";
         flake-utils.follows = "flake-utils";
       };
     };

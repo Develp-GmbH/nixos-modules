@@ -1020,7 +1020,7 @@
           "flake-utils"
         ],
         "nixpkgs": [
-          "nixpkgs"
+          "nixos-2411"
         ],
         "rust-overlay": "rust-overlay"
       },
