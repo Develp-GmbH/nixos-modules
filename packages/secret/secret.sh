@@ -7,7 +7,7 @@ NAME
     secret
 
 SYNOPSIS
-    secret [-v|--verbose] [-d|--decrypt] <-m|--machine>=host <-S|--service>=abc <-s|--secret>=token
+    secret [-v|--verbose] [-d|--debug] [-d|--decrypt] <-m|--machine>=host <-s|--service>=abc <-n|--secret-name>=token
 
 EXAMPLE
     secret -v --machine=lido-mainnet-01 --service=cachix-deploy --secret=token
@@ -23,15 +23,17 @@ DESCRIPTION
     if this directory exists, unless otherwise specified.
 
 OPTIONS
-    -v|--verbose          - Produce more verbose log messages.
     -f|--secrets-folder   - pecifies the location where secrets are saved.
     -m|--machine          - Machine for which you want to create a secret.
-    -S|--service          - Service for which you want to create a secret.
-    -s|--secret           - Secret you want to encrypt.
-    -V|--vm               - Make secret for the vmVariant.
+    -s|--service          - Service for which you want to create a secret.
+    -n|--secret-name      - Secret you want to encrypt.
+    -v|--vm               - Make secret for the vmVariant.
     -d|--decrypt          - Decrypt and print secret.
     -r|--re-encrypt       - Re-encrypt the secret.
     -a|--re-encrypt-all   - Re-encrypt secrets for all services for host."
+    -V|--verbose          - Produce more verbose log messages.
+    -D|--debug            - Show whole trace of this bash script.
+    -h|--help             - Show this help message.
 EOM
 
 set -euo pipefail
@@ -85,6 +87,7 @@ function agenix_wrapper() {
 machine=""
 service=""
 secret=""
+debug=false
 verbose=false
 machineType=server
 decrypt=false
@@ -92,28 +95,43 @@ reEncrypt=false
 reEncryptAll=false
 secretsFolder=""
 
-while [[ $# -gt 0 ]]; do
-    case "$1" in
-        -v|--verbose)           verbose=true;;
-        -m|--machine=*)         machine="${1#*=}";;
-        -f|--secrets-folder=*)  secretsFolder="${1#*=}";;
-        -S|--service=*)         service="${1#*=}";;
-        -s|--secret=*)          secret="${1#*=}";;
-        -V|--vm)                machineType=vm;;
-        -d|--decrypt)           decrypt=true;;
-        -r|--re-encrypt)        reEncrypt=true;;
-        -a|--re-encrypt-all)    reEncryptAll=true;;
-        -h|--help)              echo "${HELP_MSG}"; exit 0;;
-        *)                      echo "Unknown option: $1"; exit 1;;
+parsedFlags=$(
+    getopt \
+        -o 'f:,m:,s:,n:,v,d,r,a,V,D,h' \
+        -l 'secrets-folder:,machine:,service:,secret-name:,vm,decrypt,re-encrypt,re-encrypt-all,verbose,debug,help' \
+        -n 'secret' -- "${@}"
+)
+[[ $? -ne 0 ]] && { echo "Failed to parse options" >&2; exit 1; }
+eval set -- "${parsedFlags}"
+
+while true; do
+    case "${1}" in
+        -f|--secrets-folder=*)  secretsFolder="${2}"; shift 2;;
+        -m|--machine=*)         machine="${2}";       shift 2;;
+        -s|--service=*)         service="${2}";       shift 2;;
+        -n|--secret-name=*)     secretName="${2}";    shift 2;;
+        -v|--vm)                machineType=vm;       shift;;
+        -d|--decrypt)           decrypt=true;         shift;;
+        -r|--re-encrypt)        reEncrypt=true;       shift;;
+        -a|--re-encrypt-all)    reEncryptAll=true;    shift;;
+        -V|--verbose)           verbose=true;         shift;;
+        -D|--debug)             debug=true;           shift;;
+        -h|--help)              echo "${HELP_MSG}";   exit 0;;
+        --)                     shift;                break;;
+        *)                      echo "UNKNOWN: $1";   exit 1;;
     esac
-    shift
 done
+
+# Enable debug bash tracing.
+if [[ "${debug}" == true ]]; then
+    set -x
+fi
 
 if [[ "${reEncryptAll}" == true && -z "${machine}" ]]; then
   echo "You must specify machine"; exit 1
 elif [[ "${reEncrypt}" == true && (-z "${machine}" || -z "${service}") ]]; then
   echo "You must specify machine and service"; exit 1
-elif [[ "${reEncrypt}" == false && "${reEncryptAll}" == false && (-z "${machine}" || -z "${service}" || -z "${secret}") ]]; then
+elif [[ "${reEncrypt}" == false && "${reEncryptAll}" == false && (-z "${machine}" || -z "${service}" || -z "${secretName}") ]]; then
   echo "You must specify machine, service, and secret"; exit 1
 fi
 
@@ -126,8 +144,8 @@ else
   if [[ "${reEncrypt}" == true ]]; then
     agenix_wrapper -r
   elif [[ "${decrypt}" == true ]]; then
-    agenix_wrapper -d "${secret}.age"
+    agenix_wrapper -d "${secretName}.age"
   else
-    agenix_wrapper -e "${secret}.age"
+    agenix_wrapper -e "${secretName}.age"
   fi
 fi
