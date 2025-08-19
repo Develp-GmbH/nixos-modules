@@ -27,7 +27,7 @@
         let
           machineConfigPath = config.mcl.host-info.configPath;
           machineSecretDir = machineConfigPath + "/secrets";
-          vmConfig = dirs.modules + "/default-vm-config";
+          vmConfig = dirs.types + "/vm";
           vmSecretDir = vmConfig + "/secrets";
         in
         if isDebugVM then vmSecretDir else machineSecretDir;
