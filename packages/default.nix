@@ -26,31 +26,12 @@
             nix-fast-build = pkgs.nix-fast-build.override { inherit nix-eval-jobs; };
           };
           agenix = inputs'.agenix.packages;
-          devenv = inputs'.devenv.packages;
           disko = inputs'.disko.packages;
-          dlang-nix = inputs'.dlang-nix.packages;
           ethereum-nix = inputs'.ethereum-nix.packages;
-          fenix = inputs'.fenix.packages;
           git-hooks-nix = inputs'.git-hooks-nix.packages;
-          microvm = inputs'.microvm.packages;
-          nix-fast-build = inputs'.nix-fast-build.packages;
           nixos-anywhere = inputs'.nixos-anywhere.packages;
-          terranix = inputs'.terranix.packages;
           treefmt-nix = inputs'.treefmt-nix.packages;
         };
-
-        rustToolchain =
-          with inputs'.fenix.packages;
-          with latest;
-          combine [
-            cargo
-            clippy
-            rust-analyzer
-            rust-src
-            rustc
-            rustfmt
-            targets.wasm32-wasi.latest.rust-std
-          ];
       };
 
       packages =
@@ -64,14 +45,6 @@
         }
         // optionalAttrs isLinux {
           folder-size-metrics = pkgs.callPackage ./folder-size-metrics { };
-        }
-        // optionalAttrs (system == "x86_64-linux") {
-          mcl = pkgs.callPackage ./mcl {
-            buildDubPackage = inputs'.dlang-nix.legacyPackages.buildDubPackage.override {
-              dCompiler = inputs'.dlang-nix.packages."ldc-binary-1_38_0";
-            };
-            inherit (legacyPackages.inputs.nixpkgs) cachix nix nix-eval-jobs;
-          };
         };
     };
 }
