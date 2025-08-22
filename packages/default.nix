@@ -34,10 +34,7 @@
         };
       };
 
-      packages =
-        {
-          lido-withdrawals-automation = pkgs.callPackage ./lido-withdrawals-automation { };
-        }
+      packages = { }
         // optionalAttrs (system == "x86_64-linux" || system == "aarch64-darwin") {
           secret = import ./secret { inherit inputs' pkgs; };
         };
