@@ -37,7 +37,6 @@
       packages =
         {
           lido-withdrawals-automation = pkgs.callPackage ./lido-withdrawals-automation { };
-          pyroscope = pkgs.callPackage ./pyroscope { };
         }
         // optionalAttrs (system == "x86_64-linux" || system == "aarch64-darwin") {
           secret = import ./secret { inherit inputs' pkgs; };
